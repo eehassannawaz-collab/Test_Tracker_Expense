@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg:         #060d19;
+      --surface:    #0b1628;
+      --surface2:   #0f1e35;
+      --border:     #1a3050;
+      --border2:    #1f3a60;
+
+      --teal:       #06b6d4;
+      --teal-lt:    rgba(6,182,212,0.12);
+      --teal-dk:    #0891b2;
+
+      --indigo:     #818cf8;
+      --indigo-lt:  rgba(129,140,248,0.12);
+
+      --amber:      #f59e0b;
+      --amber-lt:   rgba(245,158,11,0.12);
+
+      --emerald:    #10b981;
+      --emerald-lt: rgba(16,185,129,0.12);
+
+      --red:        #f87171;
+      --red-lt:     rgba(248,113,113,0.12);
+
+      --text:       #e2e8f0;
+      --text2:      #94a3b8;
+      --muted:      #475569;
+
+      --radius:     14px;
+      --shadow:     0 4px 24px rgba(0,0,0,0.5), 0 1px 6px rgba(0,0,0,0.4);
+      --shadow-sm:  0 2px 8px rgba(0,0,0,0.35);
+      --glow-teal:  0 0 20px rgba(6,182,212,0.3), 0 0 40px rgba(6,182,212,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--teal); }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse at 15% 10%, rgba(6,182,212,0.06) 0, transparent 45%),
+        radial-gradient(ellipse at 85% 90%, rgba(129,140,248,0.05) 0, transparent 45%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 36px 24px 60px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #06b6d4, #818cf8);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 16px rgba(6,182,212,0.35), 0 0 30px rgba(6,182,212,0.15);
+    }
+
+    .brand h1 { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    .brand p  { font-size: 13px; color: var(--muted); margin-top: 1px; }
+
+    .add-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--teal), #0891b2);
+      color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 12px rgba(6,182,212,0.3);
+      white-space: nowrap;
+    }
+
+    .add-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--glow-teal), 0 4px 20px rgba(6,182,212,0.4);
+      filter: brightness(1.1);
+    }
+
+    /* ── Filters Bar ── */
+    .filters-bar {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 22px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-group { display: flex; align-items: center; gap: 7px; }
+
+    .filter-group label {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap;
+    }
+
+    .pill-group { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    .pill {
+      padding: 5px 12px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .pill:hover:not(.active) { background: var(--surface2); color: var(--text2); border-color: var(--border2); }
+    .pill.active {
+      background: rgba(6,182,212,0.15);
+      border-color: var(--teal);
+      color: var(--teal);
+      font-weight: 600;
+      box-shadow: 0 0 10px rgba(6,182,212,0.2);
+    }
+
+    .filter-select {
+      padding: 5px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 12px; font-weight: 500;
+      cursor: pointer; outline: none;
+      transition: border 0.15s;
+    }
+
+    .filter-select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(6,182,212,0.15); }
+    .filter-select option { background: var(--surface); }
+
+    .sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+
+    /* ── Summary Cards ── */
+    .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+
+    .cur-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .cur-card:hover { border-color: var(--border2); }
+    .cur-card.usd:hover { border-color: rgba(16,185,129,0.4); box-shadow: 0 4px 24px rgba(16,185,129,0.1); }
+    .cur-card.pkr:hover { border-color: rgba(245,158,11,0.4);  box-shadow: 0 4px 24px rgba(245,158,11,0.1); }
+
+    .cur-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    .cur-card.usd .cur-header { background: var(--emerald-lt); color: var(--emerald); }
+    .cur-card.pkr .cur-header { background: var(--amber-lt);   color: var(--amber); }
+
+    .cur-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .usd .cur-dot { background: var(--emerald); box-shadow: 0 0 6px rgba(16,185,129,0.6); }
+    .pkr .cur-dot { background: var(--amber);   box-shadow: 0 0 6px rgba(245,158,11,0.6); }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); }
+
+    .stat { padding: 14px 16px; border-right: 1px solid var(--border); }
+    .stat:last-child { border-right: none; }
+
+    .stat .s-lbl {
+      font-size: 10px; color: var(--muted); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px;
+    }
+
+    .stat .s-val { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .stat .s-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .usd .stat .s-val { color: var(--emerald); }
+    .pkr .stat .s-val { color: var(--amber); }
+
+    /* ── Expense List ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .panel-top span { font-size: 13px; font-weight: 600; color: var(--text2); }
+    .panel-top .cnt { font-size: 12px; color: var(--muted); }
+
+    .row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      animation: fadeIn 0.16s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
+    .row:last-child { border-bottom: none; }
+    .row:hover { background: rgba(255,255,255,0.025); }
+
+    .row-info { flex: 1; min-width: 0; }
+    .row-name { font-weight: 600; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .badge {
+      padding: 3px 9px; border-radius: 6px;
+      font-size: 11px; font-weight: 600;
+      white-space: nowrap; flex-shrink: 0;
+      border: 1px solid transparent;
+    }
+
+    .badge.b-monthly { background: var(--teal-lt);    color: var(--teal);    border-color: rgba(6,182,212,0.2); }
+    .badge.b-onetime { background: var(--indigo-lt);  color: var(--indigo);  border-color: rgba(129,140,248,0.2); }
+    .badge.b-usd     { background: var(--emerald-lt); color: var(--emerald); border-color: rgba(16,185,129,0.2); }
+    .badge.b-pkr     { background: var(--amber-lt);   color: var(--amber);   border-color: rgba(245,158,11,0.2); }
+
+    .row-amount { text-align: right; flex-shrink: 0; }
+    .row-amount .main { font-weight: 700; font-size: 15px; color: var(--text); }
+    .row-amount .sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .row-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .row:hover .row-actions { opacity: 1; }
+
+    .icon-btn {
+      background: transparent; border: none;
+      color: var(--muted);
+      cursor: pointer; padding: 6px; border-radius: 7px;
+      font-size: 13px; transition: all 0.15s;
+      display: flex; align-items: center;
+    }
+
+    .icon-btn.edit:hover  { background: var(--indigo-lt); color: var(--indigo); box-shadow: 0 0 8px rgba(129,140,248,0.2); }
+    .icon-btn.del:hover   { background: var(--red-lt);    color: var(--red);    box-shadow: 0 0 8px rgba(248,113,113,0.2); }
+
+    .empty {
+      padding: 64px 24px; text-align: center; color: var(--muted);
+    }
+
+    .empty .ico { font-size: 42px; margin-bottom: 12px; opacity: 0.6; }
+    .empty p { font-size: 14px; line-height: 1.7; color: var(--muted); }
+
+    /* ── Modal ── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 0 0 1px rgba(6,182,212,0.05), 0 25px 80px rgba(0,0,0,0.6), var(--glow-teal);
+      animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+    .modal-title {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .modal-title h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+
+    .modal-close {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer;
+      width: 30px; height: 30px; border-radius: 8px;
+      font-size: 15px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .modal-close:hover { background: var(--red-lt); color: var(--red); border-color: rgba(248,113,113,0.3); box-shadow: 0 0 8px rgba(248,113,113,0.2); }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 7px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 10px 13px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+
+    .field select option { background: var(--surface); }
+
+    .field input:focus, .field select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.15), 0 0 15px rgba(6,182,212,0.1);
+    }
+
+    .tog-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .tog {
+      padding: 10px 8px; border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; text-align: center;
+      transition: all 0.15s;
+    }
+
+    .tog:hover { border-color: var(--border2); color: var(--text2); background: rgba(255,255,255,0.04); }
+    .tog.t-usd     { border-color: rgba(16,185,129,0.5);   background: var(--emerald-lt); color: var(--emerald); box-shadow: 0 0 10px rgba(16,185,129,0.15); }
+    .tog.t-pkr     { border-color: rgba(245,158,11,0.5);   background: var(--amber-lt);   color: var(--amber);   box-shadow: 0 0 10px rgba(245,158,11,0.15); }
+    .tog.t-monthly { border-color: rgba(6,182,212,0.5);    background: var(--teal-lt);    color: var(--teal);    box-shadow: 0 0 10px rgba(6,182,212,0.15); }
+    .tog.t-onetime { border-color: rgba(129,140,248,0.5);  background: var(--indigo-lt);  color: var(--indigo);  box-shadow: 0 0 10px rgba(129,140,248,0.15); }
+
+    .hint { font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 16px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .modal-footer { display: flex; gap: 10px; margin-top: 8px; }
+
+    .btn-cancel {
+      flex: 1; padding: 11px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      color: var(--text2); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+
+    .btn-cancel:hover { background: rgba(255,255,255,0.05); border-color: var(--border2); }
+
+    .btn-save {
+      flex: 2; padding: 11px;
+      background: linear-gradient(135deg, var(--teal), #0891b2);
+      border: none; border-radius: 9px;
+      color: #fff; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 2px 12px rgba(6,182,212,0.3);
+    }
+
+    .btn-save:hover {
+      filter: brightness(1.1);
+      box-shadow: var(--glow-teal), 0 4px 20px rgba(6,182,212,0.4);
+      transform: translateY(-1px);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .summary { grid-template-columns: 1fr; }
+      .header  { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .filters-bar { gap: 8px; }
+      .stat-row { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .sep { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">💸</div>
+      <div>
+        <h1>Expense Tracker</h1>
+        <p id="view-label">Loading…</p>
+      </div>
+    </div>
+    <button class="add-btn" onclick="openModal(null)">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      Add Expense
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Year</label>
+      <select class="filter-select" id="f-year" onchange="render()"></select>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="filter-group">
+      <label>Month</label>
+      <div class="pill-group" id="f-month"></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="filter-group">
+      <label>Type</label>
+      <div class="pill-group">
+        <button class="pill active" data-ftype="all"      onclick="setFType(this)">All</button>
+        <button class="pill"        data-ftype="monthly"  onclick="setFType(this)">🔁 Monthly</button>
+        <button class="pill"        data-ftype="one-time" onclick="setFType(this)">⚡ One-time</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="cur-card usd">
+      <div class="cur-header"><span class="cur-dot"></span> USD — US Dollar</div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="s-lbl">Total / Year</div>
+          <div class="s-val" id="usd-total">$0.00</div>
+          <div class="s-sub" id="usd-total-s">0 expenses</div>
+        </div>
+        <div class="stat">
+          <div class="s-lbl">Monthly ×12</div>
+          <div class="s-val" id="usd-monthly">$0.00</div>
+          <div class="s-sub" id="usd-monthly-s">0 recurring</div>
+        </div>
+        <div class="stat">
+          <div class="s-lbl">One-time</div>
+          <div class="s-val" id="usd-onetime">$0.00</div>
+          <div class="s-sub" id="usd-onetime-s">0 purchases</div>
+        </div>
+      </div>
+    </div>
+    <div class="cur-card pkr">
+      <div class="cur-header"><span class="cur-dot"></span> PKR — Pakistani Rupee</div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="s-lbl">Total / Year</div>
+          <div class="s-val" id="pkr-total">₨0.00</div>
+          <div class="s-sub" id="pkr-total-s">0 expenses</div>
+        </div>
+        <div class="stat">
+          <div class="s-lbl">Monthly ×12</div>
+          <div class="s-val" id="pkr-monthly">₨0.00</div>
+          <div class="s-sub" id="pkr-monthly-s">0 recurring</div>
+        </div>
+        <div class="stat">
+          <div class="s-lbl">One-time</div>
+          <div class="s-val" id="pkr-onetime">₨0.00</div>
+          <div class="s-sub" id="pkr-onetime-s">0 purchases</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="panel">
+    <div class="panel-top">
+      <span>Expenses</span>
+      <span class="cnt" id="list-count">—</span>
+    </div>
+    <div id="list"></div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="bgClose(event)">
+  <div class="modal">
+    <div class="modal-title">
+      <h2 id="modal-heading">Add Expense</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="field">
+      <label>Name</label>
+      <input id="inp-name" type="text" placeholder="e.g. Rent, Netflix, Flight…" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label>Currency</label>
+      <div class="tog-row">
+        <button class="tog t-usd" id="tog-usd" onclick="pickCur('USD')">$ USD</button>
+        <button class="tog"       id="tog-pkr" onclick="pickCur('PKR')">₨ PKR</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Amount</label>
+      <input id="inp-amount" type="number" placeholder="0.00" step="0.01" min="0.01" />
+    </div>
+
+    <div class="field">
+      <label>Type</label>
+      <div class="tog-row">
+        <button class="tog t-monthly" id="tog-monthly" onclick="pickType('monthly')">🔁 Monthly</button>
+        <button class="tog"           id="tog-onetime" onclick="pickType('one-time')">⚡ One-time</button>
+      </div>
+    </div>
+    <p class="hint" id="type-hint">Monthly amount — yearly total = amount × 12</p>
+
+    <div class="two-col">
+      <div class="field">
+        <label>Month</label>
+        <select id="inp-month"></select>
+      </div>
+      <div class="field">
+        <label>Year</label>
+        <select id="inp-year"></select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save"   onclick="saveExpense()">Save Expense</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ─── Constants ─────────────────────────────────────────── */
+  const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTHS_FULL  = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const NOW       = new Date();
+  const CUR_YEAR  = NOW.getFullYear();
+  const CUR_MONTH = NOW.getMonth();
+
+  /* ─── State ─────────────────────────────────────────────── */
+  let data = JSON.parse(localStorage.getItem("exp_v4") || "[]");
+
+  // filter state
+  let fMonth = "all";
+  let fType  = "all";
+
+  // modal state
+  let mCur      = "USD";
+  let mType     = "monthly";
+  let editingId = null;   // null = new, string = editing
+
+  /* ─── Persistence ───────────────────────────────────────── */
+  function save() { localStorage.setItem("exp_v4", JSON.stringify(data)); }
+
+  /* ─── Formatting ────────────────────────────────────────── */
+  function fmtNum(n, decimals) {
+    // Manual formatting so decimals are always preserved correctly
+    const fixed = Number(n).toFixed(decimals);
+    const [int, dec] = fixed.split(".");
+    const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return decimals > 0 ? `${intFmt}.${dec}` : intFmt;
+  }
+
+  function fmtUSD(n) { return "$"  + fmtNum(n, 2); }
+  function fmtPKR(n) { return "₨" + fmtNum(n, 2); }
+  function fmtCur(n, cur) { return cur === "USD" ? fmtUSD(n) : fmtPKR(n); }
+
+  function yearlyAmt(e) { return e.expType === "monthly" ? e.amount * 12 : e.amount; }
+
+  /* ─── Year helpers ──────────────────────────────────────── */
+  function allYears() {
+    const s = new Set(data.map(e => e.year));
+    s.add(CUR_YEAR);
+    return [...s].sort((a, b) => b - a);
+  }
+
+  function selYear() { return parseInt(document.getElementById("f-year").value || CUR_YEAR); }
+
+  /* ─── Filtered data ─────────────────────────────────────── */
+  function filtered() {
+    const yr = selYear();
+    return data.filter(e => {
+      if (e.year !== yr) return false;
+      if (fMonth !== "all" && e.month !== parseInt(fMonth)) return false;
+      if (fType  !== "all" && e.expType !== fType) return false;
+      return true;
+    });
+  }
+
+  /* ─── Main render ───────────────────────────────────────── */
+  function render() {
+    const yr = selYear();
+    const isMo = fMonth !== "all";
+
+    document.getElementById("view-label").textContent =
+      isMo ? `${MONTHS_FULL[parseInt(fMonth)]} ${yr}` : `All of ${yr}`;
+
+    renderYearSel();
+    renderMonthPills();
+    renderSummary(isMo);
+    renderList();
+  }
+
+  function renderYearSel() {
+    const el  = document.getElementById("f-year");
+    const cur = el.value || String(CUR_YEAR);
+    el.innerHTML = allYears()
+      .map(y => `<option value="${y}" ${String(y) === cur ? "selected" : ""}>${y}</option>`)
+      .join("");
+  }
+
+  function renderMonthPills() {
+    const pills = [{ label: "All", val: "all" },
+      ...MONTHS_SHORT.map((m, i) => ({ label: m, val: String(i) }))];
+    document.getElementById("f-month").innerHTML = pills
+      .map(p => `<button class="pill ${fMonth === p.val ? "active" : ""}" onclick="setFMonth('${p.val}')">${p.label}</button>`)
+      .join("");
+  }
+
+  function renderSummary(isMo) {
+    const yr = selYear();
+    const base = fMonth === "all"
+      ? data.filter(e => e.year === yr)
+      : data.filter(e => e.year === yr && e.month === parseInt(fMonth));
+
+    ["USD", "PKR"].forEach(cur => {
+      const p   = cur.toLowerCase();
+      const fmt = cur === "USD" ? fmtUSD : fmtPKR;
+      const sub = base.filter(e => e.currency === cur);
+      const mo  = sub.filter(e => e.expType === "monthly");
+      const ot  = sub.filter(e => e.expType === "one-time");
+
+      const moAmt = isMo
+        ? mo.reduce((s, e) => s + e.amount, 0)
+        : mo.reduce((s, e) => s + e.amount * 12, 0);
+      const otAmt = ot.reduce((s, e) => s + e.amount, 0);
+
+      document.getElementById(`${p}-total`).textContent    = fmt(moAmt + otAmt);
+      document.getElementById(`${p}-total-s`).textContent  = `${sub.length} expense${sub.length !== 1 ? "s" : ""}`;
+      document.getElementById(`${p}-monthly`).textContent  = fmt(moAmt);
+      document.getElementById(`${p}-monthly-s`).textContent = `${mo.length} recurring${isMo ? "" : " ×12"}`;
+      document.getElementById(`${p}-onetime`).textContent  = fmt(otAmt);
+      document.getElementById(`${p}-onetime-s`).textContent = `${ot.length} purchase${ot.length !== 1 ? "s" : ""}`;
+    });
+  }
+
+  function renderList() {
+    const rows = filtered().sort((a, b) => yearlyAmt(b) - yearlyAmt(a));
+    document.getElementById("list-count").textContent =
+      `${rows.length} result${rows.length !== 1 ? "s" : ""}`;
+
+    const el = document.getElementById("list");
+
+    if (rows.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ico">🧾</div><p>No expenses here yet.<br>Hit <strong>Add Expense</strong> to get started.</p></div>`;
+      return;
+    }
+
+    el.innerHTML = rows.map(e => {
+      const isMo = e.expType === "monthly";
+      const yrAmt = yearlyAmt(e);
+      return `
+        <div class="row">
+          <div class="row-info">
+            <div class="row-name">${escHtml(e.name)}</div>
+            <div class="row-meta">${MONTHS_FULL[e.month]} ${e.year}</div>
+          </div>
+          <span class="badge ${isMo ? "b-monthly" : "b-onetime"}">${isMo ? "🔁 Monthly" : "⚡ One-time"}</span>
+          <span class="badge ${e.currency === "USD" ? "b-usd" : "b-pkr"}">${e.currency}</span>
+          <div class="row-amount">
+            <div class="main">${fmtCur(e.amount, e.currency)}${isMo ? "/mo" : ""}</div>
+            <div class="sub">${isMo ? fmtCur(yrAmt, e.currency) + "/yr" : "one-time"}</div>
+          </div>
+          <div class="row-actions">
+            <button class="icon-btn edit" onclick="openModal('${e.id}')" title="Edit">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6.586-6.586a2 2 0 112.828 2.828L11.828 13.828A2 2 0 0110 14H8v-2a2 2 0 01.586-1.414z"/></svg>
+            </button>
+            <button class="icon-btn del" onclick="deleteExp('${e.id}')" title="Delete">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 011-1h4a1 1 0 011 1m-6 0h6"/></svg>
+            </button>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  /* ─── Filter actions ────────────────────────────────────── */
+  function setFMonth(val) { fMonth = val; render(); }
+
+  function setFType(btn) {
+    fType = btn.dataset.ftype;
+    document.querySelectorAll("[data-ftype]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    render();
+  }
+
+  /* ─── Modal helpers ─────────────────────────────────────── */
+  function pickCur(c) {
+    mCur = c;
+    document.getElementById("tog-usd").className = "tog" + (c === "USD" ? " t-usd" : "");
+    document.getElementById("tog-pkr").className = "tog" + (c === "PKR" ? " t-pkr" : "");
+  }
+
+  function pickType(t) {
+    mType = t;
+    document.getElementById("tog-monthly").className = "tog" + (t === "monthly" ? " t-monthly" : "");
+    document.getElementById("tog-onetime").className = "tog" + (t === "one-time" ? " t-onetime" : "");
+    document.getElementById("type-hint").textContent = t === "monthly"
+      ? "Monthly amount — yearly total = amount × 12"
+      : "One-time — exact amount, no multiplication.";
+  }
+
+  function openModal(id) {
+    editingId = id;
+    const e = id ? data.find(x => x.id === id) : null;
+
+    document.getElementById("modal-heading").textContent = e ? "Edit Expense" : "Add Expense";
+    document.getElementById("inp-name").value   = e ? e.name   : "";
+    document.getElementById("inp-amount").value = e ? e.amount : "";
+
+    pickCur(e ? e.currency : "USD");
+    pickType(e ? e.expType  : "monthly");
+
+    // Month/year selects
+    const mo = e ? e.month : CUR_MONTH;
+    const yr = e ? e.year  : CUR_YEAR;
+
+    document.getElementById("inp-month").innerHTML =
+      MONTHS_FULL.map((m, i) => `<option value="${i}" ${i === mo ? "selected" : ""}>${m}</option>`).join("");
+
+    const yrs = Array.from(new Set([CUR_YEAR - 1, CUR_YEAR, CUR_YEAR + 1, yr])).sort((a, b) => a - b);
+    document.getElementById("inp-year").innerHTML =
+      yrs.map(y => `<option value="${y}" ${y === yr ? "selected" : ""}>${y}</option>`).join("");
+
+    document.getElementById("overlay").classList.add("open");
+    setTimeout(() => document.getElementById("inp-name").focus(), 40);
+  }
+
+  function closeModal() {
+    document.getElementById("overlay").classList.remove("open");
+    editingId = null;
+  }
+
+  function bgClose(e) { if (e.target === document.getElementById("overlay")) closeModal(); }
+
+  /* ─── Save ──────────────────────────────────────────────── */
+  function saveExpense() {
+    const name   = document.getElementById("inp-name").value.trim();
+    const rawAmt = document.getElementById("inp-amount").value;
+    const amount = parseFloat(rawAmt);
+    const month  = parseInt(document.getElementById("inp-month").value);
+    const year   = parseInt(document.getElementById("inp-year").value);
+
+    // Validation
+    if (!name)                        { highlight("inp-name");   return; }
+    if (!rawAmt || isNaN(amount) || amount <= 0) { highlight("inp-amount"); return; }
+
+    if (editingId) {
+      // Update existing
+      const idx = data.findIndex(e => e.id === editingId);
+      if (idx !== -1) {
+        data[idx] = { ...data[idx], name, amount, month, year, currency: mCur, expType: mType };
+      }
+    } else {
+      // Add new
+      data.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name, amount, month, year,
+        currency: mCur,
+        expType:  mType,
+      });
+    }
+
+    save();
+    // Sync year filter to where the expense was saved
+    document.getElementById("f-year").innerHTML =
+      allYears().map(y => `<option value="${y}" ${y === year ? "selected" : ""}>${y}</option>`).join("");
+
+    render();
+    closeModal();
+  }
+
+  /* ─── Delete ─────────────────────────────────────────────── */
+  function deleteExp(id) {
+    data = data.filter(e => e.id !== id);
+    save();
+    render();
+  }
+
+  /* ─── Utility ───────────────────────────────────────────── */
+  function highlight(id) {
+    const el = document.getElementById(id);
+    el.focus();
+    el.style.borderColor = "var(--red)";
+    el.style.boxShadow   = "0 0 0 3px rgba(239,68,68,0.15)";
+    setTimeout(() => { el.style.borderColor = ""; el.style.boxShadow = ""; }, 1500);
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  /* ─── Keyboard ──────────────────────────────────────────── */
+  document.addEventListener("keydown", ev => {
+    if (ev.key === "Escape") closeModal();
+    if (ev.key === "Enter" && document.getElementById("overlay").classList.contains("open")) {
+      ev.preventDefault();
+      saveExpense();
+    }
+  });
+
+  /* ─── Boot ──────────────────────────────────────────────── */
+  (function init() {
+    document.getElementById("f-year").innerHTML =
+      allYears().map(y => `<option value="${y}" ${y === CUR_YEAR ? "selected" : ""}>${y}</option>`).join("");
+    render();
+  })();
+</script>
+</body>
+</html>
